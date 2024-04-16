@@ -1,17 +1,18 @@
 import React from 'react';
 import {Text, ImageBackground, View, StyleSheet} from 'react-native';
 
-const UserCard = () => {
+const UserCard = props => {
+  const {name, image, bio} = props.user;
   return (
     <View style={styles.card}>
       <ImageBackground
         source={{
-          uri: 'https://img.a.transfermarkt.technology/portrait/big/418560-1709108116.png',
+          uri: image,
         }}
         style={styles.image}>
         <View style={styles.cardInner}>
-          <Text style={styles.name}>Erling Haaland</Text>
-          <Text style={styles.bio}>I score goal</Text>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.bio}>{bio}</Text>
         </View>
       </ImageBackground>
     </View>

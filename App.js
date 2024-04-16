@@ -1,11 +1,12 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import UserCard from './src/components/UserCard/';
+import users from './assets/data/users';
 
 const App = () => {
   return (
     <View style={styles.pageContainer}>
-      <UserCard />
+      <UserCard user={users[0]} />
     </View>
   );
 };
