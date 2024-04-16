@@ -1,8 +1,22 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Text, Image, View, StyleSheet } from 'react-native';
 
 const App = () => {
-  return <Text style={{textAlign: 'center', marginTop: 50}}>Hello world</Text>;
+  return (
+    <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+      <Image source={{
+        uri: 'https://img.a.transfermarkt.technology/portrait/big/418560-1709108116.png'
+      }} 
+      style={{
+        width: 250, height: 250
+      }} 
+      />
+    </View>
+  );
 };
+
+const styles = StyleSheet.create({
+  
+})
 
 export default App;
