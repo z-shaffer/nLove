@@ -34,4 +34,11 @@ export default [
       'https://img.a.transfermarkt.technology/portrait/big/568177-1712320986.jpg',
     bio: 'How did I end up here',
   },
+  {
+    id: '6',
+    name: 'Kevin De Bruyne',
+    image:
+      'https://img.a.transfermarkt.technology/portrait/big/88755-1684245748.jpg',
+    bio: 'Ohhhh Kevin De Bruyne',
+  },
 ];
