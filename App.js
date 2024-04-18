@@ -5,8 +5,8 @@ import {Pressable, StyleSheet, Text, View} from 'react-native';
 import Animated, {
   useAnimatedGestureHandler,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
-  withSpring,
 } from 'react-native-reanimated';
 import 'react-native-gesture-handler';
 import {
@@ -16,22 +16,27 @@ import {
 
 const App = () => {
   const translateX = useSharedValue(0);
+  const rotate = useDerivedValue(() => '20deg');
   const cardStyle = useAnimatedStyle(() => ({
     transform: [
       {
         translateX: translateX.value,
       },
+      {
+        rotate: rotate.value,
+      },
     ],
   }));
   const gestureHandler = useAnimatedGestureHandler({
-    oneStart: _ => {
-      console.warn('Touch started');
+    onStart: (_, context) => {
+      context.startX = translateX.value;
     },
-    onActive: event => {
-      translateX.value = event.translationX;
+    onActive: (event, context) => {
+      translateX.value = context.startX + event.translationX;
       console.warn('Touch x: ', event.translationX);
     },
     onEnd: () => {
+      //if (translateX.value <= -200 )
       console.warn('Touch ended');
     },
   });
