@@ -17,7 +17,7 @@ import {
 } from 'react-native-gesture-handler';
 
 const ROTATION = 60;
-const SWIPE_VELOCITY = 800;
+const SWIPE_DISTANCE_MODIFIER = 0.5;
 
 const App = () => {
   // Index of users in the stack
@@ -85,8 +85,12 @@ const App = () => {
     },
     onEnd: event => {
       // Absolute value required due to left swipes having a negative value
-      if (Math.abs(event.velocityX) < SWIPE_VELOCITY) {
+      if (Math.abs(translateX.value) < SWIPE_DISTANCE_MODIFIER * screenWidth) {
         translateX.value = withSpring(0);
+      } else {
+        translateX.value = withSpring(
+          event.velocityX > 0 ? hiddenTranslateX : -hiddenTranslateX,
+        );
       }
       console.warn('Touch ended');
     },
