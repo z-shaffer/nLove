@@ -88,8 +88,10 @@ const App = () => {
       if (Math.abs(translateX.value) < SWIPE_DISTANCE_MODIFIER * screenWidth) {
         translateX.value = withSpring(0);
       } else {
+        // Send the card off the screen
         translateX.value = withSpring(
-          event.velocityX > 0 ? hiddenTranslateX : -hiddenTranslateX,
+          // Determines which way to send the card based on which way the user swiped
+          hiddenTranslateX * Math.sign(event.velocityX),
         );
       }
       console.warn('Touch ended');
