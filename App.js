@@ -1,8 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import UserCard from './src/components/UserCard/';
 import users from './assets/data/users';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import Animated, {
+  interpolate,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useDerivedValue,
@@ -14,9 +21,21 @@ import {
   PanGestureHandler,
 } from 'react-native-gesture-handler';
 
+const ROTATION = 60;
+
 const App = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [nextIndex, setNextIndex] = useState(1);
+  const currentProfile = users[currentIndex];
+  const nextProfile = users[nextIndex];
+  const {width: screenWidth} = useWindowDimensions();
+  const hiddenTranslateX = 2 * screenWidth;
   const translateX = useSharedValue(0);
-  const rotate = useDerivedValue(() => '20deg');
+  const rotate = useDerivedValue(
+    () =>
+      interpolate(translateX.value, [0, hiddenTranslateX], [0, ROTATION]) +
+      'deg',
+  );
   const cardStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -44,9 +63,12 @@ const App = () => {
   return (
     <GestureHandlerRootView>
       <View style={styles.pageContainer}>
+        <View style={styles.nextCardContainer}>
+          <UserCard user={nextProfile} />
+        </View>
         <PanGestureHandler onGestureEvent={gestureHandler}>
           <Animated.View style={[styles.animatedCard, cardStyle]}>
-            <UserCard user={users[0]} />
+            <UserCard user={currentProfile} />
           </Animated.View>
         </PanGestureHandler>
       </View>
@@ -62,6 +84,12 @@ const styles = StyleSheet.create({
   },
   animatedCard: {
     width: '100%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nextCardContainer: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
   },
