@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withSpring,
 } from 'react-native-reanimated';
 import 'react-native-gesture-handler';
 import {
@@ -85,7 +86,7 @@ const App = () => {
     onEnd: event => {
       // Absolute value required due to left swipes having a negative value
       if (Math.abs(event.velocityX) < SWIPE_VELOCITY) {
-        translateX.value = 0;
+        translateX.value = withSpring(0);
       }
       console.warn('Touch ended');
     },
