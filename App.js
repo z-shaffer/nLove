@@ -1,20 +1,25 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import UserCard from './src/components/UserCard/';
 import users from './assets/data/users';
-import {StyleSheet, useWindowDimensions, View} from 'react-native';
+import {Image, StyleSheet, useWindowDimensions, View} from 'react-native';
+import 'react-native-gesture-handler';
+
 import Animated, {
   interpolate,
+  runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import 'react-native-gesture-handler';
 import {
   GestureHandlerRootView,
   PanGestureHandler,
 } from 'react-native-gesture-handler';
+
+import Like from './assets/images/like.png';
+import Dislike from './assets/images/dislike.png';
 
 const ROTATION = 60;
 const SWIPE_DISTANCE_MODIFIER = 0.5;
@@ -31,6 +36,9 @@ const App = () => {
   const hiddenTranslateX = 2 * screenWidth;
   // Current X position of top card on stack -- zero by default.
   const translateX = useSharedValue(0);
+  //
+  // ** Derived Values ** //
+  //
   // Interpolation for scale of next card when swiping
   const scale = useDerivedValue(() =>
     interpolate(
@@ -53,6 +61,9 @@ const App = () => {
       interpolate(translateX.value, [0, hiddenTranslateX], [0, ROTATION]) +
       'deg',
   );
+  //
+  // ** Animation Styles ** //
+  //
   // Animation style for current card
   const cardStyle = useAnimatedStyle(() => ({
     transform: [
@@ -73,6 +84,16 @@ const App = () => {
     ],
     opacity: opacity.value,
   }));
+  const likeStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(translateX.value, [20, hiddenTranslateX / 10], [0, 1]),
+  }));
+  const dislikeStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      translateX.value,
+      [-20, -hiddenTranslateX / 10],
+      [0, 1],
+    ),
+  }));
   // Gesture handler for swiping on current card
   const gestureHandler = useAnimatedGestureHandler({
     onStart: (_, context) => {
@@ -91,26 +112,50 @@ const App = () => {
         // Send the card off the screen
         translateX.value = withSpring(
           // Determines which way to send the card based on which way the user swiped
+          // Callback updates the current index
           hiddenTranslateX * Math.sign(event.velocityX),
+          {damping: 10, stiffness: 120, mass: 0.1, duration: 500}, // Custom animation configuration
+          () => runOnJS(setCurrentIndex)(currentIndex + 1),
         );
       }
       console.warn('Touch ended');
     },
   });
 
+  useEffect(() => {
+    // On current index update: Reset X position variable and point to the index of the next card
+    translateX.value = 0;
+    setNextIndex(currentIndex + 1);
+  }, [currentIndex, translateX]);
+
   return (
     <GestureHandlerRootView>
       <View style={styles.pageContainer}>
-        <View style={styles.nextCardContainer}>
-          <Animated.View style={[styles.animatedCard, nextCardStyle]}>
-            <UserCard user={nextProfile} />
-          </Animated.View>
-        </View>
-        <PanGestureHandler onGestureEvent={gestureHandler}>
-          <Animated.View style={[styles.animatedCard, cardStyle]}>
-            <UserCard user={currentProfile} />
-          </Animated.View>
-        </PanGestureHandler>
+        {nextProfile && (
+          <View style={styles.nextCardContainer}>
+            <Animated.View style={[styles.animatedCard, nextCardStyle]}>
+              <UserCard user={nextProfile} />
+            </Animated.View>
+          </View>
+        )}
+
+        {currentProfile && (
+          <PanGestureHandler onGestureEvent={gestureHandler}>
+            <Animated.View style={[styles.animatedCard, cardStyle]}>
+              <Animated.Image
+                source={Like}
+                style={[styles.like, likeStyle]}
+                resizeMode="contain"
+              />
+              <Animated.Image
+                source={Dislike}
+                style={[styles.dislike, dislikeStyle]}
+                resizeMode="contain"
+              />
+              <UserCard user={currentProfile} />
+            </Animated.View>
+          </PanGestureHandler>
+        )}
       </View>
     </GestureHandlerRootView>
   );
@@ -123,8 +168,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   animatedCard: {
-    width: '100%',
-    flex: 1,
+    width: '90%',
+    height: '70%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -132,6 +177,36 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  like: {
+    width: 150,
+    height: 150,
+    position: 'absolute',
+    top: 10,
+    zIndex: 1,
+    left: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+  },
+  dislike: {
+    width: 150,
+    height: 150,
+    position: 'absolute',
+    top: 10,
+    zIndex: 1,
+    right: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
   },
 });
 
