@@ -106,7 +106,6 @@ const AnimatedStack = props => {
     },
     onActive: (event, context) => {
       translateX.value = context.startX + event.translationX;
-      console.warn('Touch x: ', event.translationX);
     },
     onEnd: event => {
       // Absolute value required due to left swipes having a negative value
@@ -122,7 +121,6 @@ const AnimatedStack = props => {
           () => runOnJS(setCurrentIndex)(currentIndex + 1),
         );
       }
-      console.warn('Touch ended');
     },
   });
 
