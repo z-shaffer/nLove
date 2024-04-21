@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, useWindowDimensions, View} from 'react-native';
-import 'react-native-gesture-handler';
 
 import Animated, {
   interpolate,
