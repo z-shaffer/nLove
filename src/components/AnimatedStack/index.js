@@ -11,10 +11,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import {
-  GestureHandlerRootView,
-  PanGestureHandler,
-} from 'react-native-gesture-handler';
+import {PanGestureHandler} from 'react-native-gesture-handler';
 
 import Like from '../../../assets/images/like.png';
 import Dislike from '../../../assets/images/dislike.png';
@@ -24,7 +21,7 @@ const SWIPE_DISTANCE_MODIFIER = 0.5;
 const SWIPE_INDICATOR_MODIFIER = 10;
 
 const AnimatedStack = props => {
-  const {data, renderItem} = props;
+  const {data, renderItem, onSwipeLeft, onSwipeRight} = props;
   // Index of users in the stack
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(1);
@@ -44,7 +41,7 @@ const AnimatedStack = props => {
     interpolate(
       translateX.value,
       [-hiddenTranslateX, 0, hiddenTranslateX],
-      [1, 0.8, 1],
+      [1, 0.9, 1],
     ),
   );
   // Interpolation for opacity of next card when swiping
@@ -111,16 +108,19 @@ const AnimatedStack = props => {
       // Absolute value required due to left swipes having a negative value
       if (Math.abs(translateX.value) < SWIPE_DISTANCE_MODIFIER * screenWidth) {
         translateX.value = withSpring(0);
-      } else {
-        // Send the card off the screen
-        translateX.value = withSpring(
-          // Determines which way to send the card based on which way the user swiped
-          // Callback updates the current index
-          hiddenTranslateX * Math.sign(event.velocityX),
-          {damping: 10, stiffness: 120, mass: 0.1, duration: 500}, // Custom animation configuration
-          () => runOnJS(setCurrentIndex)(currentIndex + 1),
-        );
+        return;
       }
+      // Send the card off the screen
+      translateX.value = withSpring(
+        // Determines which way to send the card based on which way the user swiped
+        // Callback updates the current index
+        hiddenTranslateX * Math.sign(event.velocityX),
+        {damping: 10, stiffness: 120, mass: 0.1, duration: 300},
+        () => runOnJS(setCurrentIndex)(currentIndex + 1),
+      );
+
+      const onSwipe = event.velocityX > 0 ? onSwipeRight : onSwipeLeft;
+      onSwipe && runOnJS(onSwipe)(currentProfile);
     },
   });
 
