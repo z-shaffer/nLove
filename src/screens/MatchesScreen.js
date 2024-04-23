@@ -8,7 +8,7 @@ import {
   FlatList,
 } from 'react-native';
 import users from '../../assets/data/users';
-import {ScrollView} from 'react-native-gesture-handler';
+import Messages from '../components/Messages';
 
 const MatchesScreen = () => {
   const initialUsers = users.slice(0, 4);
@@ -29,6 +29,9 @@ const MatchesScreen = () => {
           )}
           showsHorizontalScrollIndicator={false}
         />
+      </View>
+      <View style={styles.container}>
+        <Messages />
       </View>
     </SafeAreaView>
   );
