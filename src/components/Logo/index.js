@@ -1,26 +1,10 @@
 import React from 'react';
-import {View, Text, StyleSheet, SafeAreaView} from 'react-native';
+
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const Logo = () => {
-  return (
-    <SafeAreaView style={styles.root}>
-      <View style={styles.container}>
-        <Text style={{fontWeight: 'bold', fontSize: 24, color: '#ffffff'}}>
-          nLove
-        </Text>
-      </View>
-    </SafeAreaView>
-  );
+  const color = '#fefefe';
+  return <FontAwesome name="cloud" size={60} color={color} />;
 };
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  container: {
-    padding: 10,
-  },
-});
 
 export default Logo;
