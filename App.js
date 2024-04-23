@@ -3,14 +3,10 @@ import {StyleSheet, View, SafeAreaView} from 'react-native';
 
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
-import Fontisto from 'react-native-vector-icons/Fontisto';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
 import HomeScreen from './src/screens/HomeScreen';
 import MatchesScreen from './src/screens/MatchesScreen';
 import Logo from './src/components/Logo';
+import Navigation from './src/components/Navigation';
 
 const App = () => {
   const color = '#fefefe';
@@ -18,8 +14,9 @@ const App = () => {
     <SafeAreaView style={{flex: 1}}>
       <GestureHandlerRootView>
         <View style={styles.pageContainer}>
-          <FontAwesome name="cloud" size={60} color={color} />
+          <Logo />
           <MatchesScreen />
+          <Navigation />
         </View>
       </GestureHandlerRootView>
     </SafeAreaView>
@@ -27,12 +24,21 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   pageContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
     backgroundColor: '#7e57c2',
     paddingTop: 10,
+  },
+  navigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    bottom: 10,
   },
 });
 
