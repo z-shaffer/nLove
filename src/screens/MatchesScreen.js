@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flex: 1,
     padding: 10,
+    backgroundColor: '#7e57c2',
   },
   container: {},
   users: {

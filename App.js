@@ -11,11 +11,11 @@ import Navigation from './src/components/Navigation';
 const App = () => {
   const color = '#fefefe';
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={styles.root}>
       <GestureHandlerRootView>
         <View style={styles.pageContainer}>
           <Logo />
-          <MatchesScreen />
+          <HomeScreen />
           <Navigation />
         </View>
       </GestureHandlerRootView>
@@ -31,14 +31,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-    backgroundColor: '#7e57c2',
-    paddingTop: 10,
-  },
-  navigation: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    bottom: 10,
+    backgroundColor: '#6d4db1',
+    paddingTop: 5,
   },
 });
 
