@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: '#7e57c2',
+    bottom: 15,
   },
   container: {},
   users: {
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.36,
     shadowRadius: 3.68,
   },
-  newser: {
+  newUser: {
     width: 65,
     height: 65,
     margin: 10,
