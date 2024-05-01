@@ -9,7 +9,6 @@ import Logo from './src/components/Logo';
 import Navigation from './src/components/Navigation';
 
 const App = () => {
-  const color = '#fefefe';
   return (
     <SafeAreaView style={styles.root}>
       <GestureHandlerRootView>

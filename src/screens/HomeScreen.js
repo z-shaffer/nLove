@@ -2,9 +2,8 @@ import React from 'react';
 import UserCard from '../components/UserCard';
 import AnimatedStack from '../components/AnimatedStack';
 import users from '../../assets/data/users';
-import {StyleSheet, View, Text, Button} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 
 const HomeScreen = () => {
@@ -24,13 +23,13 @@ const HomeScreen = () => {
       />
       <View style={styles.icons}>
         <View style={styles.button}>
-          <Fontisto name="frowning" size={36} color="#FFFFFF" />
+          <Fontisto name="frowning" size={40} color="#FF6B6B" />
         </View>
         <View style={styles.button}>
-          <Fontisto name="undo" size={36} color="#FFFFFF" />
+          <Fontisto name="undo" size={40} color="#FFD166" />
         </View>
         <View style={styles.button}>
-          <Fontisto name="heart-eyes" size={36} color="#FFFFFF" />
+          <Fontisto name="heart-eyes" size={40} color="#00b894" />
         </View>
       </View>
     </View>
@@ -50,6 +49,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
+    height: '8%',
     padding: 0,
     bottom: 20,
   },
