@@ -11,6 +11,11 @@ import Navigation from './src/components/Navigation';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 
+import Amplify from 'aws-amplify';
+import config from './src/aws-exports';
+
+Amplify.configure(config);
+
 const App = () => {
   const [activeScreen, setActiveScreen] = useState('HOME');
   const color = '#CCCCCC';
