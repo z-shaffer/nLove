@@ -13,6 +13,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 
 import Amplify from 'aws-amplify';
 import config from './src/aws-exports';
+import {withAuthenticator} from 'aws-amplify-react-native';
 
 Amplify.configure(config);
 
@@ -82,4 +83,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default withAuthenticator(App);
