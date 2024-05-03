@@ -6,9 +6,14 @@ import {
   SafeAreaView,
   Image,
   FlatList,
+  Pressable,
 } from 'react-native';
+
 import users from '../../assets/data/users';
+
 import Messages from '../components/Messages';
+
+import {signOut} from 'aws-amplify/auth';
 
 const ProfileScreen = () => {
   const initialUsers = users.slice(0, 4);
@@ -18,7 +23,9 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        <Text>Profile</Text>
+        <Pressable onPress={() => signOut()}>
+          <Text>Log Out</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
