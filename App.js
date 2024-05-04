@@ -6,6 +6,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import HomeScreen from './src/screens/HomeScreen';
 import MatchesScreen from './src/screens/MatchesScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 import Logo from './src/components/Logo';
 import Navigation from './src/components/Navigation';
@@ -34,6 +35,7 @@ const App = () => {
           {activeScreen === 'HOME' && <HomeScreen />}
           {activeScreen === 'MATCHES' && <MatchesScreen />}
           {activeScreen === 'PROFILE' && <ProfileScreen />}
+          {activeScreen === 'SETTINGS' && <SettingsScreen />}
           <View style={styles.navigation}>
             <Pressable onPress={() => setActiveScreen('HOME')}>
               <FontAwesome
