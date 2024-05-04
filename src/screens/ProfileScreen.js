@@ -6,9 +6,12 @@ import {
   SafeAreaView,
   Pressable,
   TextInput,
+  Modal,
+  FlatList,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
 } from 'react-native';
 
-import {Picker} from '@react-native-picker/picker';
 import {generateClient} from 'aws-amplify/api';
 import {createUser} from './graphql/mutations';
 
@@ -19,6 +22,29 @@ const ProfileScreen = () => {
   const [bio, setBio] = useState('');
   const [gender, setGender] = useState();
   const [lookingFor, setLookingFor] = useState();
+  const [isGenderDropdownVisible, setIsGenderDropdownVisible] = useState(false);
+  const [isLookingForDropdownVisible, setIsLookingForDropdownVisible] =
+    useState(false);
+
+  const genders = ['MALE', 'FEMALE', 'OTHER'];
+
+  const toggleGenderDropdown = () => {
+    setIsGenderDropdownVisible(!isGenderDropdownVisible);
+  };
+
+  const toggleLookingForDropdown = () => {
+    setIsLookingForDropdownVisible(!isLookingForDropdownVisible);
+  };
+
+  const selectGender = selectedGender => {
+    setGender(selectedGender);
+    toggleGenderDropdown();
+  };
+
+  const selectLookingFor = selectedLookingFor => {
+    setLookingFor(selectedLookingFor);
+    toggleLookingForDropdown();
+  };
 
   const isNotValid = () => {
     return name && bio && gender && lookingFor;
@@ -35,17 +61,16 @@ const ProfileScreen = () => {
         variables: {
           input: {
             name: name,
-            image:
-              'https://monkey-forest.com/wp-content/uploads/Box-Image-5-800x600.png',
+            image: 'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg',
             bio: bio,
             gender: gender,
             lookingFor: lookingFor,
           },
         },
       });
-      console.log('New user created:', newUser);
+      console.log('Post saved successfully!', newUser);
     } catch (error) {
-      console.error('Error creating new user:', error);
+      console.log('Error saving post', error);
     }
   };
 
@@ -69,23 +94,57 @@ const ProfileScreen = () => {
           onChangeText={setBio}
         />
         <Text>Gender:</Text>
-        <Picker
-          selectedValue={gender}
-          onValueChange={itemValue => setGender(itemValue)}
-          itemStyle={{height: 100}}>
-          <Picker.Item label="Male" value="MALE" />
-          <Picker.Item label="Female" value="FEMALE" />
-          <Picker.Item label="Other" value="OTHER" />
-        </Picker>
+        <TouchableOpacity onPress={toggleGenderDropdown}>
+          <Text style={styles.dropdownToggle}>{gender || 'Select Gender'}</Text>
+        </TouchableOpacity>
+        <Modal
+          visible={isGenderDropdownVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={toggleGenderDropdown}>
+          <TouchableWithoutFeedback onPress={toggleGenderDropdown}>
+            <View style={styles.overlay} />
+          </TouchableWithoutFeedback>
+          <View style={styles.modalContainer}>
+            <View style={styles.dropdown}>
+              <FlatList
+                data={genders}
+                renderItem={({item}) => (
+                  <TouchableOpacity onPress={() => selectGender(item)}>
+                    <Text style={styles.dropdownItem}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={item => item}
+              />
+            </View>
+          </View>
+        </Modal>
         <Text>Looking for:</Text>
-        <Picker
-          selectedValue={lookingFor}
-          onValueChange={itemValue => setLookingFor(itemValue)}
-          itemStyle={{height: 100}}>
-          <Picker.Item label="Male" value="MALE" />
-          <Picker.Item label="Female" value="FEMALE" />
-          <Picker.Item label="Other" value="OTHER" />
-        </Picker>
+        <TouchableOpacity onPress={toggleLookingForDropdown}>
+          <Text style={styles.dropdownToggle}>
+            {lookingFor || 'Select Looking For'}
+          </Text>
+        </TouchableOpacity>
+        <Modal
+          visible={isLookingForDropdownVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={toggleLookingForDropdown}>
+          <TouchableWithoutFeedback onPress={toggleLookingForDropdown}>
+            <View style={styles.overlay} />
+          </TouchableWithoutFeedback>
+          <View style={styles.dropdown}>
+            <FlatList
+              data={genders}
+              renderItem={({item}) => (
+                <TouchableOpacity onPress={() => selectLookingFor(item)}>
+                  <Text style={styles.dropdownItem}>{item}</Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={item => item}
+            />
+          </View>
+        </Modal>
         <Pressable onPress={save} style={styles.button}>
           <Text>Save</Text>
         </Pressable>
@@ -116,6 +175,30 @@ const styles = StyleSheet.create({
     margin: 10,
     borderBottomColor: 'lightgray',
     borderBottomWidth: 2,
+  },
+  dropdownToggle: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    marginVertical: 5,
+  },
+  overlay: {
+    flex: 1,
+  },
+  dropdown: {
+    backgroundColor: '#fefefe',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgray',
   },
 });
 
