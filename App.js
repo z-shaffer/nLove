@@ -1,62 +1,44 @@
-import React, {useState} from 'react';
-import {StyleSheet, View, SafeAreaView, Pressable} from 'react-native';
+import 'react-native-url-polyfill/auto';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, View, SafeAreaView} from 'react-native';
 
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
-import HomeScreen from './src/screens/HomeScreen';
-import MatchesScreen from './src/screens/MatchesScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
-
 import Logo from './src/components/Logo';
-import Navigation from './src/components/Navigation';
 
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Entypo from 'react-native-vector-icons/Entypo';
+import {supabase} from './src/lib/supabase';
+import Auth from './src/auth/Auth';
+import Account from './src/auth/Account';
+import {Session} from '@supabase/supabase-js';
 
 const App = () => {
-  const [activeScreen, setActiveScreen] = useState('HOME');
-  const color = '#CCCCCC';
-  const activeColor = '#ffffff';
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({data: {session}}) => {
+      setSession(session);
+    });
+
+    const onChange = (_event, session) => {
+      setSession(session);
+    };
+
+    supabase.auth.onAuthStateChange(onChange);
+
+    return () => {
+      supabase.auth.removeAuthStateListener(onChange);
+    };
+  }, []);
   return (
     <SafeAreaView style={styles.root}>
       <GestureHandlerRootView>
         <View style={styles.pageContainer}>
           <Logo />
-          {activeScreen === 'HOME' && <HomeScreen />}
-          {activeScreen === 'MATCHES' && <MatchesScreen />}
-          {activeScreen === 'PROFILE' && <ProfileScreen />}
-          {activeScreen === 'SETTINGS' && <SettingsScreen />}
-          <View style={styles.navigation}>
-            <Pressable onPress={() => setActiveScreen('HOME')}>
-              <FontAwesome
-                name="cloud"
-                size={24}
-                color={activeScreen === 'HOME' ? activeColor : color}
-              />
-            </Pressable>
-            <Pressable onPress={() => setActiveScreen('MATCHES')}>
-              <Entypo
-                name="chat"
-                size={24}
-                color={activeScreen === 'MATCHES' ? activeColor : color}
-              />
-            </Pressable>
-            <Pressable onPress={() => setActiveScreen('PROFILE')}>
-              <FontAwesome
-                name="user"
-                size={24}
-                color={activeScreen === 'PROFILE' ? activeColor : color}
-              />
-            </Pressable>
-            <Pressable onPress={() => setActiveScreen('SETTINGS')}>
-              <FontAwesome
-                name="cog"
-                size={24}
-                color={activeScreen === 'SETTINGS' ? activeColor : color}
-              />
-            </Pressable>
-          </View>
+          {session && session.user ? (
+            <Account key={session.user.id} session={session} />
+          ) : (
+            <Auth />
+          )}
         </View>
       </GestureHandlerRootView>
     </SafeAreaView>
