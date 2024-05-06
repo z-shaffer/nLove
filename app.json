@@ -1,4 +1,7 @@
 {
   "name": "nLove",
-  "displayName": "nLove"
+  "displayName": "nLove",
+  "plugins": [
+    "expo-secure-store"
+  ]
 }

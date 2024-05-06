@@ -10,13 +10,18 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.23.1",
+    "@supabase/supabase-js": "^2.43.1",
+    "expo": "^50.0.0",
     "react": "18.2.0",
     "react-native": "0.73.6",
+    "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "^2.16.0",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-reanimated": "^3.8.1",
+    "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.0.3",
-    "expo": "^50.0.0"
+    "expo-secure-store": "~12.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
