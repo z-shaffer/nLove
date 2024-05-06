@@ -51,7 +51,8 @@ const ProfileScreen = () => {
       return;
     }
     try {
-      // api call
+      // Api call
+      console.log('Post saved successfully!', newUser);
     } catch (error) {
       console.log('Error saving post', error);
     }

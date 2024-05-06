@@ -14,15 +14,6 @@ import Navigation from './src/components/Navigation';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 
-import {Amplify} from 'aws-amplify';
-import amplifyconfig from './src/amplifyconfiguration.json';
-import {
-  withAuthenticator,
-  useAuthenticator,
-} from '@aws-amplify/ui-react-native';
-
-Amplify.configure(amplifyconfig);
-
 const App = () => {
   const [activeScreen, setActiveScreen] = useState('HOME');
   const color = '#CCCCCC';
@@ -91,4 +82,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuthenticator(App);
+export default App;
