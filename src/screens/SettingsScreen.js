@@ -9,13 +9,11 @@ import {
   Pressable,
 } from 'react-native';
 
-import {signOut} from 'aws-amplify/auth';
-
 const SettingsScreen = () => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        <Pressable onPress={() => signOut()}>
+        <Pressable>
           <Text>Log Out</Text>
         </Pressable>
       </View>
