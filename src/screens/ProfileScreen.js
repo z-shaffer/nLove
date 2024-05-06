@@ -12,11 +12,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import {generateClient} from 'aws-amplify/api';
-import {createUser} from './graphql/mutations';
-
-const client = generateClient();
-
 const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
@@ -56,19 +51,7 @@ const ProfileScreen = () => {
       return;
     }
     try {
-      const newUser = await client.graphql({
-        query: createUser,
-        variables: {
-          input: {
-            name: name,
-            image: 'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg',
-            bio: bio,
-            gender: gender,
-            lookingFor: lookingFor,
-          },
-        },
-      });
-      console.log('Post saved successfully!', newUser);
+      // api call
     } catch (error) {
       console.log('Error saving post', error);
     }
