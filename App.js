@@ -10,6 +10,8 @@ import {supabase} from './src/lib/supabase';
 import Auth from './src/auth/Auth';
 import Account from './src/auth/Account';
 import {Session} from '@supabase/supabase-js';
+import SignUpScreen from './src/screens/SignUpScreen';
+import SignInScreen from './src/screens/SignInScreen';
 
 const App = () => {
   const [session, setSession] = useState(null);
@@ -29,6 +31,7 @@ const App = () => {
       supabase.auth.removeAuthStateListener(onChange);
     };
   }, []);
+
   return (
     <SafeAreaView style={styles.root}>
       <GestureHandlerRootView>
@@ -37,7 +40,7 @@ const App = () => {
           {session && session.user ? (
             <Account key={session.user.id} session={session} />
           ) : (
-            <Auth />
+            <SignInScreen />
           )}
         </View>
       </GestureHandlerRootView>
