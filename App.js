@@ -7,11 +7,11 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Logo from './src/components/Logo';
 
 import {supabase} from './src/lib/supabase';
-import Auth from './src/auth/Auth';
 import Account from './src/auth/Account';
 import {Session} from '@supabase/supabase-js';
-import SignUpScreen from './src/screens/SignUpScreen';
 import SignInScreen from './src/screens/SignInScreen';
+
+import Colors from './src/constants/Colors';
 
 const App = () => {
   const [session, setSession] = useState(null);
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-    backgroundColor: '#6d4db1',
+    backgroundColor: Colors.theme.hex,
     paddingTop: 5,
   },
   navigation: {

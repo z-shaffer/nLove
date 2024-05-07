@@ -15,7 +15,7 @@ const Button = forwardRef((props, ref) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: 'white',
     padding: 15,
     alignItems: 'center',
     borderRadius: 100,
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'white',
+    color: Colors.theme.hex,
   },
 });
 
