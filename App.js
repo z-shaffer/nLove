@@ -4,12 +4,10 @@ import {StyleSheet, View, SafeAreaView} from 'react-native';
 
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
-import Logo from './src/components/Logo';
-
 import {supabase} from './src/lib/supabase';
 import Account from './src/auth/Account';
 import {Session} from '@supabase/supabase-js';
-import SignInScreen from './src/screens/SignInScreen';
+import Auth from './src/auth/Auth';
 
 import Colors from './src/constants/Colors';
 
@@ -35,14 +33,11 @@ const App = () => {
   return (
     <SafeAreaView style={styles.root}>
       <GestureHandlerRootView>
-        <View style={styles.pageContainer}>
-          <Logo />
-          {session && session.user ? (
-            <Account key={session.user.id} session={session} />
-          ) : (
-            <SignInScreen />
-          )}
-        </View>
+        {session && session.user ? (
+          <Account key={session.user.id} session={session} />
+        ) : (
+          <Auth />
+        )}
       </GestureHandlerRootView>
     </SafeAreaView>
   );

@@ -1,23 +1,43 @@
-import {View, Text, TextInput, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Pressable,
+  Alert,
+} from 'react-native';
 import React, {useState} from 'react';
 
+import {supabase} from '../lib/supabase';
+
 import Button from '../components/Button';
-import Colors from '../constants/Colors';
 
-import {Link, Stack} from 'expo-router';
-
-const SignInScreen = () => {
+const SignInScreen = ({setActiveScreen}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function signInWithEmail() {
+    setLoading(true);
+    const {error} = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      Alert.alert(error.message);
+    }
+    setLoading(false);
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>nLove.</Text>
-      <Text style={styles.label}>Email</Text>
+      <Text style={styles.label}>Phone Number</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
-        placeholder="jon@gmail.com"
+        placeholder="(999) 999-9999"
         style={styles.input}
       />
 
@@ -29,11 +49,14 @@ const SignInScreen = () => {
         style={styles.input}
         secureTextEntry
       />
-
-      <Button text="Sign in" />
-      <Link href="/SignUp" style={styles.textButton}>
-        Create an account
-      </Link>
+      <Button
+        onPress={signInWithEmail}
+        disabled={loading}
+        text={loading ? 'Signing in...' : 'Sign in'}
+      />
+      <Pressable onPress={() => setActiveScreen('SIGNUP')}>
+        <Text style={styles.textButton}>Create an account</Text>
+      </Pressable>
     </View>
   );
 };
@@ -53,6 +76,13 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     bottom: '12%',
+  },
+  subtitle: {
+    fontSize: 11,
+    color: 'white',
+    textAlign: 'right',
+    bottom: '12%',
+    right: '48%',
   },
   input: {
     borderWidth: 1,

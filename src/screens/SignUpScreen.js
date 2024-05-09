@@ -1,20 +1,49 @@
-import {View, Text, TextInput, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Pressable,
+  Alert,
+} from 'react-native';
 import React, {useState} from 'react';
-import Button from '../components/Button';
-import Colors from '../constants/Colors';
-import {Link, Stack} from 'expo-router';
 
-const SignUpScreen = () => {
+import {supabase} from '../lib/supabase';
+
+import Button from '../components/Button';
+
+const SignUpScreen = ({setActiveScreen}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
+  async function signUpWithEmail() {
+    setLoading(true);
+    const {error} = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      Alert.alert(error.message);
+    } else {
+      setActiveScreen('VERIFICATION');
+    }
+    setLoading(false);
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Email</Text>
+      <Text style={styles.title}>nLove.</Text>
+      <Text style={styles.subtitle}>
+        It's time to fall nLove. Let's get started.
+      </Text>
+      <Text style={styles.label}>Phone Number</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
-        placeholder="jon@gmail.com"
+        placeholder="(999) 999-9999"
         style={styles.input}
       />
 
@@ -26,11 +55,14 @@ const SignUpScreen = () => {
         style={styles.input}
         secureTextEntry
       />
-
-      <Button text="Create account" />
-      <Link href="/sign-in" style={styles.textButton}>
-        Sign in
-      </Link>
+      <Button
+        onPress={signUpWithEmail}
+        disabled={loading}
+        text={loading ? 'Creating account...' : 'Create account'}
+      />
+      <Pressable onPress={() => setActiveScreen('SIGNIN')}>
+        <Text style={styles.textButton}>Already have an account? Sign In</Text>
+      </Pressable>
     </View>
   );
 };
@@ -40,10 +72,22 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     flex: 1,
-    idth: '100%',
+    width: '100%',
   },
   label: {
-    color: 'gray',
+    color: 'white',
+  },
+  title: {
+    fontSize: 80,
+    color: 'white',
+    textAlign: 'center',
+    bottom: '12%',
+  },
+  subtitle: {
+    fontSize: 11,
+    color: 'white',
+    textAlign: 'center',
+    bottom: '12%',
   },
   input: {
     borderWidth: 1,
@@ -57,7 +101,7 @@ const styles = StyleSheet.create({
   textButton: {
     alignSelf: 'center',
     fontWeight: 'bold',
-    color: Colors.light.tint,
+    color: 'white',
     marginVertical: 10,
   },
 });
