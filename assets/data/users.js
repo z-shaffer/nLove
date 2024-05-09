@@ -43,7 +43,7 @@ export default [
     id: '6',
     name: 'Kevin De Bruyne',
     age: '29',
-    image:
+    images:
       'https://img.a.transfermarkt.technology/portrait/big/88755-1684245748.jpg',
     bio: 'Ohhhh Kevin De Bruyne',
   },
