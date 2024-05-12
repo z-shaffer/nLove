@@ -1,15 +1,20 @@
 {
-  "staging": {
+  "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-nlove-staging-95a6f-authRole",
-      "UnauthRoleArn": "arn:aws:iam::339712979860:role/amplify-nlove-staging-95a6f-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::339712979860:role/amplify-nlove-staging-95a6f-authRole",
+      "AuthRoleName": "amplify-nlove-dev-c72bb-authRole",
+      "UnauthRoleArn": "arn:aws:iam::339712979860:role/amplify-nlove-dev-c72bb-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::339712979860:role/amplify-nlove-dev-c72bb-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-nlove-staging-95a6f-deployment",
-      "UnauthRoleName": "amplify-nlove-staging-95a6f-unauthRole",
-      "StackName": "amplify-nlove-staging-95a6f",
-      "StackId": "arn:aws:cloudformation:us-east-1:339712979860:stack/amplify-nlove-staging-95a6f/43401350-07c1-11ef-bc0e-0e6d50146eb9",
-      "AmplifyAppId": "d2n5dftdz1ra1q"
+      "DeploymentBucketName": "amplify-nlove-dev-c72bb-deployment",
+      "UnauthRoleName": "amplify-nlove-dev-c72bb-unauthRole",
+      "StackName": "amplify-nlove-dev-c72bb",
+      "StackId": "arn:aws:cloudformation:us-east-1:339712979860:stack/amplify-nlove-dev-c72bb/03812b90-0f97-11ef-8362-12e41a7e282d",
+      "AmplifyAppId": "d364f7rmdmbt7n"
+    },
+    "categories": {
+      "auth": {
+        "nLove": {}
+      }
     }
   }
 }

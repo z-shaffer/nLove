@@ -1,0 +1,14 @@
+enum Genders {
+  MALE
+  FEMALE
+  OTHER
+}
+
+type User @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String
+  images: String
+  bio: String!
+  gender: Genders!
+  lookingFor: Genders!
+}
