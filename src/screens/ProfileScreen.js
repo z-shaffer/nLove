@@ -61,7 +61,7 @@ const ProfileScreen = () => {
         variables: {
           input: {
             name: name,
-            image: 'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg',
+            images: 'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg',
             bio: bio,
             gender: gender,
             lookingFor: lookingFor,
