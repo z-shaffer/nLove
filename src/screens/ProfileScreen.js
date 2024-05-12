@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 
 import {generateClient} from 'aws-amplify/api';
-import {createUser} from './graphql/mutations';
+import {createUser} from '../graphql/mutations';
 
 const client = generateClient();
 
