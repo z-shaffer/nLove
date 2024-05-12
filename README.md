@@ -5,7 +5,8 @@ nLove is a mobile dating application focused on meaningful connections.
 Quickstart:
 - Configure iOS emulator via xCode or Android emulator via Android SDK
 - Clone the repository
-- From root, run the pull command provided by Amplify
+- From root, run the pull command provided by Amplify. Say 'Yes' to modifying the backend
+- Run 'amplify codegen add' to transform graphql schema
 - Run 'npm install'
 - For iOS: Run 'npx pod-install'
 - Run 'npm start' and select your OS
