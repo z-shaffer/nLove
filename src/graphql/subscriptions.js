@@ -10,8 +10,12 @@ export const onCreateUser = /* GraphQL */ `
       bio
       gender
       lookingFor
+      sub
       createdAt
       updatedAt
+      _version
+      _deleted
+      _lastChangedAt
       __typename
     }
   }
@@ -25,8 +29,12 @@ export const onUpdateUser = /* GraphQL */ `
       bio
       gender
       lookingFor
+      sub
       createdAt
       updatedAt
+      _version
+      _deleted
+      _lastChangedAt
       __typename
     }
   }
@@ -40,8 +48,12 @@ export const onDeleteUser = /* GraphQL */ `
       bio
       gender
       lookingFor
+      sub
       createdAt
       updatedAt
+      _version
+      _deleted
+      _lastChangedAt
       __typename
     }
   }

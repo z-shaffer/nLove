@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import {getCurrentUser} from 'aws-amplify/auth';
+
 import {generateClient} from 'aws-amplify/api';
 import {createUser} from '../graphql/mutations';
+import {updateUser} from '../graphql/mutations';
+import {userBySub} from '../graphql/mutations';
+import {User} from '../models/';
+import {DataStore} from 'aws-amplify/datastore';
 
 const client = generateClient();
 
@@ -25,6 +31,7 @@ const ProfileScreen = () => {
   const [isGenderDropdownVisible, setIsGenderDropdownVisible] = useState(false);
   const [isLookingForDropdownVisible, setIsLookingForDropdownVisible] =
     useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const genders = ['MALE', 'FEMALE', 'OTHER'];
 
@@ -50,28 +57,30 @@ const ProfileScreen = () => {
     return name && bio && gender && lookingFor;
   };
 
+  /* **** API **** */
+
+  const [user, setUser] = useState();
+
   const save = async () => {
-    if (!isNotValid()) {
-      console.warn('An error was encountered.');
-      return;
-    }
+    const {userId} = await getCurrentUser();
+    setIsLoading(true);
     try {
-      const newUser = await client.graphql({
-        query: createUser,
-        variables: {
-          input: {
-            name: name,
-            images: 'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg',
-            bio: bio,
-            gender: gender,
-            lookingFor: lookingFor,
-          },
-        },
-      });
-      console.log('Post saved successfully!', newUser);
+      const users = await DataStore.query(User, u => u.sub.eq(userId));
+      if (users.length > 0) {
+        const updatedUser = await DataStore.save(
+          User.copyOf(users[0], updated => {
+            updated.name = name; // Update the field you want here
+          }),
+        );
+        console.log('User updated:', updatedUser);
+        setUser(updatedUser);
+      } else {
+        console.log('User with the specified sub ID not found.');
+      }
     } catch (error) {
-      console.log('Error saving post', error);
+      console.error('Error updating user:', error);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -146,7 +155,7 @@ const ProfileScreen = () => {
           </View>
         </Modal>
         <Pressable onPress={save} style={styles.button}>
-          <Text>Save</Text>
+          {isLoading ? <Text>Saving...</Text> : <Text>Save</Text>}
         </Pressable>
       </View>
     </SafeAreaView>
