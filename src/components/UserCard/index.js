@@ -2,16 +2,18 @@ import React from 'react';
 import {Text, ImageBackground, View, StyleSheet} from 'react-native';
 
 const UserCard = props => {
-  const {name, image, bio} = props.user;
+  const {name, age, images, bio} = props.user;
   return (
     <View style={styles.card}>
       <ImageBackground
         source={{
-          uri: image,
+          uri: images,
         }}
         style={styles.image}>
         <View style={styles.cardInner}>
-          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.name}>
+            {name} - {age}
+          </Text>
           <Text style={styles.bio}>{bio}</Text>
         </View>
       </ImageBackground>

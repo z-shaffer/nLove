@@ -11,10 +11,6 @@ import users from '../../assets/data/users';
 import Messages from '../components/Messages';
 
 const MatchesScreen = () => {
-  const initialUsers = users.slice(0, 4);
-
-  const remainingUsers = users.slice(4);
-
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
@@ -24,13 +20,11 @@ const MatchesScreen = () => {
           keyExtractor={item => item.id.toString()}
           renderItem={({item}) => (
             <View style={styles.user}>
-              <Image source={{uri: item.image}} style={styles.image} />
+              <Image source={{uri: item.images}} style={styles.image} />
             </View>
           )}
           showsHorizontalScrollIndicator={false}
         />
-      </View>
-      <View style={styles.container}>
         <Messages />
       </View>
     </SafeAreaView>
