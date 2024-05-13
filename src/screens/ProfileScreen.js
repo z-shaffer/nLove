@@ -21,8 +21,6 @@ import {userBySub} from '../graphql/mutations';
 import {User} from '../models/';
 import {DataStore} from 'aws-amplify/datastore';
 
-const client = generateClient();
-
 const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
@@ -31,7 +29,6 @@ const ProfileScreen = () => {
   const [isGenderDropdownVisible, setIsGenderDropdownVisible] = useState(false);
   const [isLookingForDropdownVisible, setIsLookingForDropdownVisible] =
     useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const genders = ['MALE', 'FEMALE', 'OTHER'];
 
@@ -53,34 +50,51 @@ const ProfileScreen = () => {
     toggleLookingForDropdown();
   };
 
-  const isNotValid = () => {
+  /* **** API **** */
+
+  const client = generateClient();
+
+  const [user, setUser] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isValid = () => {
     return name && bio && gender && lookingFor;
   };
 
-  /* **** API **** */
-
-  const [user, setUser] = useState();
-
   const save = async () => {
-    const {userId} = await getCurrentUser();
-    setIsLoading(true);
-    try {
-      const users = await DataStore.query(User, u => u.sub.eq(userId));
-      if (users.length > 0) {
-        const updatedUser = await DataStore.save(
-          User.copyOf(users[0], updated => {
-            updated.name = name; // Update the field you want here
-          }),
-        );
-        console.log('User updated:', updatedUser);
-        setUser(updatedUser);
-      } else {
-        console.log('User with the specified sub ID not found.');
-      }
-    } catch (error) {
-      console.error('Error updating user:', error);
-    }
-    setIsLoading(false);
+    getCurrentUser().then(userInfo => {
+      setIsLoading(true);
+      DataStore.query(User, u => u.sub.eq(userInfo.userId))
+        .then(users => {
+          if (!isValid) {
+            console.log('Invalid input');
+            return;
+          }
+          if (!users?.length) {
+            console.log('404 user');
+            return;
+          }
+          return DataStore.save(
+            User.copyOf(users[0], updated => {
+              updated.name = name;
+              updated.bio = bio;
+              updated.gender = gender;
+              updated.lookingFor = lookingFor;
+              updated.images =
+                'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg';
+            }),
+          );
+        })
+        .then(updatedUser => {
+          if (updatedUser) {
+            setUser(updatedUser);
+          }
+        })
+        .catch(error => {
+          console.error('Error updating user:', error);
+        });
+      setIsLoading(false);
+    });
   };
 
   return (
