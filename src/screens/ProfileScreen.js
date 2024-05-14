@@ -57,44 +57,58 @@ const ProfileScreen = () => {
   const [user, setUser] = useState();
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    (async () => {
+      getCurrentUser().then(userInfo => {
+        DataStore.query(User, u => u.sub.eq(userInfo.userId)).then(users => {
+          if (!users?.length) {
+            // todo incident reporting
+            console.log('404 -> users');
+            return;
+          }
+
+          const currentUser = users[0];
+          setUser(currentUser);
+          setName(currentUser.name);
+          setBio(currentUser.bio);
+          setGender(currentUser.gender);
+          setLookingFor(currentUser.lookingFor);
+        });
+      });
+    })();
+  }, []);
+
   const isValid = () => {
     return name && bio && gender && lookingFor;
   };
 
   const save = async () => {
-    getCurrentUser().then(userInfo => {
-      setIsLoading(true);
-      DataStore.query(User, u => u.sub.eq(userInfo.userId))
-        .then(users => {
-          if (!isValid) {
-            console.log('Invalid input');
-            return;
-          }
-          if (!users?.length) {
-            console.log('404 user');
-            return;
-          }
-          return DataStore.save(
-            User.copyOf(users[0], updated => {
-              updated.name = name;
-              updated.bio = bio;
-              updated.gender = gender;
-              updated.lookingFor = lookingFor;
-              updated.images =
-                'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg';
-            }),
-          );
-        })
-        .then(updatedUser => {
-          if (updatedUser) {
-            setUser(updatedUser);
-          }
-        })
-        .catch(error => {
-          console.error('Error updating user:', error);
-        });
-      setIsLoading(false);
-    });
+    if (!isValid) {
+      console.log('Invalid input');
+      return;
+    }
+    setIsLoading(true);
+    DataStore.save(
+      User.copyOf(user, updated => {
+        updated.name = name;
+        updated.bio = bio;
+        updated.gender = gender;
+        updated.lookingFor = lookingFor;
+        updated.images =
+          'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg';
+      }),
+    )
+      .then(updatedUser => {
+        if (updatedUser) {
+          setUser(updatedUser);
+        }
+      })
+      .catch(e => {
+        console.error('Error updating user:', e);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return (
