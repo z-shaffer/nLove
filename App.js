@@ -18,7 +18,12 @@ import {Amplify} from 'aws-amplify';
 import amplifyconfig from './src/amplifyconfiguration.json';
 import {withAuthenticator} from '@aws-amplify/ui-react-native';
 
-Amplify.configure(amplifyconfig);
+Amplify.configure({
+  ...amplifyconfig,
+  Analytics: {
+    disabled: true,
+  },
+});
 
 const App = () => {
   const [activeScreen, setActiveScreen] = useState('HOME');
