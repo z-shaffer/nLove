@@ -10,22 +10,20 @@ import {
   FlatList,
   TouchableWithoutFeedback,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 
 import {getCurrentUser} from 'aws-amplify/auth';
 
 import {generateClient} from 'aws-amplify/api';
-import {createUser} from '../graphql/mutations';
-import {updateUser} from '../graphql/mutations';
-import {userBySub} from '../graphql/mutations';
-import {User} from '../models/';
+import {User} from '../models';
 import {DataStore} from 'aws-amplify/datastore';
 
 const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
-  const [gender, setGender] = useState();
-  const [lookingFor, setLookingFor] = useState();
+  const [gender, setGender] = useState('MALE');
+  const [lookingFor, setLookingFor] = useState('MALE');
   const [isGenderDropdownVisible, setIsGenderDropdownVisible] = useState(false);
   const [isLookingForDropdownVisible, setIsLookingForDropdownVisible] =
     useState(false);
@@ -54,27 +52,40 @@ const ProfileScreen = () => {
 
   const client = generateClient();
 
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load user's profile info
 
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       getCurrentUser().then(userInfo => {
-        DataStore.query(User, u => u.sub.eq(userInfo.userId)).then(users => {
-          if (!users?.length) {
-            // todo incident reporting
-            console.log('404 -> users');
-            return;
-          }
-
-          const currentUser = users[0];
-          setUser(currentUser);
-          setName(currentUser.name);
-          setBio(currentUser.bio);
-          setGender(currentUser.gender);
-          setLookingFor(currentUser.lookingFor);
-        });
+        DataStore.query(User, u => u.sub.eq(userInfo.userId)).then(
+          async dbUsers => {
+            if (!dbUsers?.length) {
+              const newUser = new User({
+                sub: userInfo.userId,
+                name: '',
+                bio: '',
+                gender: 'MALE',
+                lookingFor: 'MALE',
+                images: '',
+              });
+              await DataStore.save(newUser);
+              dbUsers[0] = newUser;
+            }
+            const currentUser = dbUsers[0];
+            setUser(currentUser);
+            setName(currentUser.name);
+            setBio(currentUser.bio);
+            setGender(currentUser.gender);
+            setLookingFor(currentUser.lookingFor);
+          },
+        );
       });
+      setIsLoading(false);
     })();
   }, []);
 
@@ -82,12 +93,14 @@ const ProfileScreen = () => {
     return name && bio && gender && lookingFor;
   };
 
+  // Update profile information
+
   const save = async () => {
     if (!isValid) {
-      console.log('Invalid input');
+      Alert.alert('Invalid input');
       return;
     }
-    setIsLoading(true);
+    setIsSaving(true);
     DataStore.save(
       User.copyOf(user, updated => {
         updated.name = name;
@@ -101,13 +114,14 @@ const ProfileScreen = () => {
       .then(updatedUser => {
         if (updatedUser) {
           setUser(updatedUser);
+          Alert.alert('Profile updated!');
         }
       })
       .catch(e => {
-        console.error('Error updating user:', e);
+        Alert.alert('Error updating profile:', e);
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsSaving(false);
       });
   };
 
@@ -183,7 +197,7 @@ const ProfileScreen = () => {
           </View>
         </Modal>
         <Pressable onPress={save} style={styles.button}>
-          {isLoading ? <Text>Saving...</Text> : <Text>Save</Text>}
+          {isSaving ? <Text>Saving...</Text> : <Text>Save</Text>}
         </Pressable>
       </View>
     </SafeAreaView>
