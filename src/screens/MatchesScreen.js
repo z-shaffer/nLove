@@ -17,11 +17,10 @@ import {User, Match} from '../models';
 const MatchesScreen = () => {
   const [matches, setMatches] = useState([]);
   const [me, setMe] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      setIsLoading(true);
       getCurrentUser().then(userInfo => {
         DataStore.query(User, u => u.sub.eq(userInfo.userId)).then(
           async dbUsers => {
@@ -32,7 +31,6 @@ const MatchesScreen = () => {
           },
         );
       });
-      setIsLoading(false);
     };
     fetchCurrentUser();
   }, []);
@@ -44,13 +42,26 @@ const MatchesScreen = () => {
       return;
     }
     const fetchMatches = async () => {
+      const fetchMatch = async matchId => {
+        const dbUsers = await DataStore.query(User, u => u.sub.eq(matchId));
+        return dbUsers[0];
+      };
+
       const dbMatches = await DataStore.query(Match, m =>
         m.and(m => [
           m.isMatch.eq(true),
           m.or(m => [m.User1ID.eq(me.sub), m.User2ID.eq(me.sub)]),
         ]),
       );
-      setMatches(dbMatches);
+      const fetchedMatches = [];
+      for (const dbMatch of dbMatches) {
+        const fetchedMatch = await fetchMatch(
+          dbMatch.User1ID === me.sub ? dbMatch.User2ID : dbMatch.User1Id,
+        );
+        fetchedMatches.push(fetchedMatch);
+      }
+      setMatches(fetchedMatches);
+      setIsLoading(false);
     };
     fetchMatches();
   }, [me]);
@@ -70,62 +81,60 @@ const MatchesScreen = () => {
     return () => subscription.unsubscribe();
   }, [me]);
 
-  const fetchMatch = async matchId => {
-    DataStore.query(User, u => u.sub.eq(matchId)).then(async dbUsers => {
-      if (!dbUsers || !dbUsers.length) {
-        return;
+  /*const updateMatch = async match => {
+    if (match.User1ID === me.sub) {
+      try {
+        const matchUser = await fetchMatch(match.User2ID);
+        console.log('SAVING');
+        await DataStore.save(
+          Match.copyOf(match, updated => {
+            updated.User1 = me;
+            updated.User2 = matchUser;
+          }),
+        );
+        console.log('Match updated successfully!');
+      } catch (error) {
+        console.error('Error updating match:', error);
       }
-      return dbUsers[0];
-    });
+    } else {
+      try {
+        const matchUser = await fetchMatch(match.User2ID);
+        console.log('SAVING');
+        await DataStore.save(
+          Match.copyOf(match, updated => {
+            updated.User1 = matchUser;
+            updated.User2 = me;
+          }),
+        );
+        console.log('Match updated successfully!');
+      } catch (error) {
+        console.error('Error updating match:', error);
+      }
+    }
   };
+
+  const pullMatch = async match => {
+    return await match.User2;
+  };*/
 
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        <View style={styles.match}>
-          {matches.map(match => {
-            let matchUser = null;
-            console.log('MATCHES', matches);
-            if (!match.User1 || !match.User2) {
-              if (match.User1ID === me.id) {
-                matchUser = fetchMatch(match.User2ID);
-                DataStore.save(
-                  Match.copyOf(match, updated =>
-                    (updated.User1 = me)((updated.User2 = matchUser)),
-                  ),
+        {!isLoading && (
+          <>
+            <View style={styles.match}>
+              {matches.map(match => {
+                console.log(match);
+                return (
+                  <View style={styles.user} key={match.id}>
+                    <Image source={{uri: match.images}} style={styles.image} />
+                  </View>
                 );
-                console.log('trying to update!!!!!!!!!!!!!!!');
-              } else {
-                matchUser = fetchMatch(match.User1ID);
-                DataStore.save(
-                  Match.copyOf(match, updated =>
-                    (updated.User1 = matchUser)((updated.User2 = me)),
-                  ),
-                );
-                console.log('trying to update!!!!!!!!!!!!');
-              }
-              return (
-                <View style={styles.user} key={match.id}>
-                  <Image source={{}} style={styles.image} />
-                  <Text style={styles.name}>NEW MATCH!</Text>
-                </View>
-              );
-            } else {
-              if (match.User1ID === me.id) {
-                matchUser = match.User2;
-              } else {
-                matchUser = match.User1;
-              }
-              return (
-                <View style={styles.user} key={match.id}>
-                  <Image source={{uri: matchUser.image}} style={styles.image} />
-                  <Text style={styles.name}>{matchUser.name}</Text>
-                </View>
-              );
-            }
-          })}
-        </View>
-        <Messages />
+              })}
+            </View>
+            <Messages />
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
