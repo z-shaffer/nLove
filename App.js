@@ -48,13 +48,13 @@ const App = () => {
         setIsLoading(false);
       }
     });
-    DataStore.start();
+    //DataStore.start();
     return () => listener();
   }, []);
 
   const renderPage = () => {
     if (activeScreen === 'HOME') {
-      return <HomeScreen />;
+      return <HomeScreen isUserLoading={isLoading} />;
     }
     if (isLoading) {
       return <ActivityIndicator style={{flex: 1}} />;
