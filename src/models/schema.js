@@ -24,6 +24,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "isMatch": {
+                    "name": "isMatch",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": true,
+                    "attributes": []
+                },
                 "User1": {
                     "name": "User1",
                     "isArray": false,
@@ -59,13 +66,6 @@ export const schema = {
                             "matchUser2Id"
                         ]
                     }
-                },
-                "isMatch": {
-                    "name": "isMatch",
-                    "isArray": false,
-                    "type": "Boolean",
-                    "isRequired": true,
-                    "attributes": []
                 },
                 "createdAt": {
                     "name": "createdAt",

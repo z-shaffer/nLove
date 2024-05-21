@@ -18,9 +18,9 @@ type EagerMatch = {
   readonly id: string;
   readonly User1ID: string;
   readonly User2ID?: string | null;
+  readonly isMatch: boolean;
   readonly User1?: User | null;
   readonly User2?: User | null;
-  readonly isMatch: boolean;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly matchUser1Id?: string | null;
@@ -35,9 +35,9 @@ type LazyMatch = {
   readonly id: string;
   readonly User1ID: string;
   readonly User2ID?: string | null;
+  readonly isMatch: boolean;
   readonly User1: AsyncItem<User | undefined>;
   readonly User2: AsyncItem<User | undefined>;
-  readonly isMatch: boolean;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly matchUser1Id?: string | null;
