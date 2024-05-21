@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Image,
   FlatList,
+  Alert,
 } from 'react-native';
 
 import Messages from '../components/Messages';
@@ -74,14 +75,16 @@ const MatchesScreen = () => {
           newMatch.isMatch &&
           (newMatch.User1ID === me.id || newMatch.User2ID === me.id)
         ) {
-          console.log('************************** A new matching is waiting');
+          Alert.alert('You have a new match!');
         }
       }
     });
     return () => subscription.unsubscribe();
   }, [me]);
 
-  /*const updateMatch = async match => {
+  /* This was code used to access the user fields via the match objects but could not get it to work
+  
+  const updateMatch = async match => {
     if (match.User1ID === me.sub) {
       try {
         const matchUser = await fetchMatch(match.User2ID);
@@ -124,7 +127,6 @@ const MatchesScreen = () => {
           <>
             <View style={styles.match}>
               {matches.map(match => {
-                console.log(match);
                 return (
                   <View style={styles.user} key={match.id}>
                     <Image source={{uri: match.images}} style={styles.image} />
