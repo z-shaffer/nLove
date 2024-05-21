@@ -2,9 +2,9 @@ type Match @model @auth(rules: [{allow: public}]) {
   id: ID!
   User1ID: String!
   User2ID: String
+  isMatch: Boolean!
   User1: User @hasOne
   User2: User @hasOne
-  isMatch: Boolean!
 }
 
 enum Genders {
