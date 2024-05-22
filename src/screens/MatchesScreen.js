@@ -7,6 +7,7 @@ import {
   Image,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 
 import Messages from '../components/Messages';
@@ -54,13 +55,13 @@ const MatchesScreen = () => {
           m.or(m => [m.User1ID.eq(me.sub), m.User2ID.eq(me.sub)]),
         ]),
       );
-      const fetchedMatches = [];
-      for (const dbMatch of dbMatches) {
-        const fetchedMatch = await fetchMatch(
-          dbMatch.User1ID === me.sub ? dbMatch.User2ID : dbMatch.User1Id,
-        );
-        fetchedMatches.push(fetchedMatch);
-      }
+      const fetchedMatches = await Promise.all(
+        dbMatches.map(async match => {
+          const userId =
+            match.User1ID === me.sub ? match.User2ID : match.User1ID;
+          return await fetchMatch(userId);
+        }),
+      );
       setMatches(fetchedMatches);
       setIsLoading(false);
     };
@@ -83,7 +84,7 @@ const MatchesScreen = () => {
   }, [me]);
 
   /* This was code used to access the user fields via the match objects but could not get it to work
-  
+
   const updateMatch = async match => {
     if (match.User1ID === me.sub) {
       try {
@@ -123,7 +124,9 @@ const MatchesScreen = () => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        {!isLoading && (
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
           <>
             <View style={styles.match}>
               {matches.map(match => {

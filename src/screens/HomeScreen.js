@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, View, Alert} from 'react-native';
+import {StyleSheet, View, Alert, ActivityIndicator} from 'react-native';
 
 import UserCard from '../components/UserCard';
 import AnimatedStack from '../components/AnimatedStack';
@@ -14,6 +14,7 @@ const HomeScreen = ({isUserLoading}) => {
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [matches, setMatches] = useState(null);
   const [me, setMe] = useState(null);
 
   // Pull in the info of the current user
@@ -27,30 +28,59 @@ const HomeScreen = ({isUserLoading}) => {
         return;
       }
       setMe(dbUsers[0]);
-      setIsLoading(false);
     };
     fetchCurrentUser();
   }, []);
 
+  // Pull a filtered list of matches
+
+  useEffect(() => {
+    if (!me) {
+      return;
+    }
+    const fetchMatches = async () => {
+      const fetchMatch = async matchId => {
+        const dbUsers = await DataStore.query(User, u => u.sub.eq(matchId));
+        return dbUsers[0];
+      };
+
+      const dbMatches = await DataStore.query(Match, m =>
+        m.and(m => [
+          m.isMatch.eq(true),
+          m.or(m => [m.User1ID.eq(me.sub), m.User2ID.eq(me.sub)]),
+        ]),
+      );
+      setMatches(
+        dbMatches.map(match =>
+          match.User1ID === me.sub ? match.User2ID : match.User1ID,
+        ),
+      );
+    };
+    fetchMatches();
+  }, [me]);
+
   // Pull the info of the potential matches of the current user
 
   useEffect(() => {
-    if (isUserLoading) {
+    if (isUserLoading || !me || matches === null) {
       return;
     }
     const fetchUsers = async () => {
-      setUsers(await DataStore.query(User));
+      let fetchedUsers = await DataStore.query(User, u =>
+        u.and(u => [u.gender.eq(me.lookingFor), u.sub.ne(me.sub)]),
+      );
+      fetchedUsers = fetchedUsers.filter(u => !matches.includes(u.sub));
+      setUsers(fetchedUsers);
+      setIsLoading(false);
     };
     fetchUsers();
-  }, [isUserLoading]);
+  }, [isUserLoading, me, matches]);
 
   // Logic to declare both users are NOT a match
 
   const onSwipeLeft = () => {
     if (!currentUser || !me) {
       Alert.alert('An error occurred. Try restarting the app.');
-      console.log(currentUser);
-      console.log(me);
       return;
     }
     console.warn('Swiped left on', currentUser.name);
@@ -94,24 +124,30 @@ const HomeScreen = ({isUserLoading}) => {
 
   return (
     <View style={styles.pageContainer}>
-      <AnimatedStack
-        data={users}
-        renderItem={({item}) => <UserCard user={item} />}
-        setCurrentUser={setCurrentUser}
-        onSwipeLeft={onSwipeLeft}
-        onSwipeRight={onSwipeRight}
-      />
-      <View style={styles.icons}>
-        <View style={styles.button}>
-          <Fontisto name="frowning" size={40} color="#FF6B6B" />
-        </View>
-        <View style={styles.button}>
-          <Fontisto name="undo" size={40} color="#FFD166" />
-        </View>
-        <View style={styles.button}>
-          <Fontisto name="heart-eyes" size={40} color="#00b894" />
-        </View>
-      </View>
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <>
+          <AnimatedStack
+            data={users}
+            renderItem={({item}) => <UserCard user={item} />}
+            setCurrentUser={setCurrentUser}
+            onSwipeLeft={onSwipeLeft}
+            onSwipeRight={onSwipeRight}
+          />
+          <View style={styles.icons}>
+            <View style={styles.button}>
+              <Fontisto name="frowning" size={40} color="#FF6B6B" />
+            </View>
+            <View style={styles.button}>
+              <Fontisto name="undo" size={40} color="#FFD166" />
+            </View>
+            <View style={styles.button}>
+              <Fontisto name="heart-eyes" size={40} color="#00b894" />
+            </View>
+          </View>
+        </>
+      )}
     </View>
   );
 };
