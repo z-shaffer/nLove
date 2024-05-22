@@ -11,6 +11,9 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Alert,
+  Image,
+  ScrollView,
+  Platform,
 } from 'react-native';
 
 import {getCurrentUser} from 'aws-amplify/auth';
@@ -18,6 +21,8 @@ import {getCurrentUser} from 'aws-amplify/auth';
 import {generateClient} from 'aws-amplify/api';
 import {User} from '../models';
 import {DataStore} from 'aws-amplify/datastore';
+
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const ProfileScreen = () => {
   const [name, setName] = useState('');
@@ -27,6 +32,7 @@ const ProfileScreen = () => {
   const [isGenderDropdownVisible, setIsGenderDropdownVisible] = useState(false);
   const [isLookingForDropdownVisible, setIsLookingForDropdownVisible] =
     useState(false);
+  const [newImageLocalUri, setNewImageLocalUri] = useState(null);
 
   const genders = ['MALE', 'FEMALE', 'OTHER'];
 
@@ -46,6 +52,21 @@ const ProfileScreen = () => {
   const selectLookingFor = selectedLookingFor => {
     setLookingFor(selectedLookingFor);
     toggleLookingForDropdown();
+  };
+
+  const pickImage = () => {
+    launchImageLibrary(
+      {mediaType: 'photo'},
+      ({didCancel, errorCode, errorMessage, assets}) => {
+        if (didCancel) {
+          return;
+        } else if (errorCode) {
+          Alert.alert('An error occurred');
+          return;
+        }
+        setNewImageLocalUri(assets[0].uri);
+      },
+    );
   };
 
   /* **** API **** */
@@ -128,6 +149,12 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
+        <Pressable onPress={pickImage}>
+          <Image
+            source={{uri: newImageLocalUri ? newImageLocalUri : user?.images}}
+            style={{width: 100, height: 100, borderRadius: 50}}
+          />
+        </Pressable>
         <Text>Name:</Text>
         <TextInput
           style={styles.input}
@@ -231,7 +258,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: 'white',
     borderRadius: 5,
     marginVertical: 5,
   },
