@@ -69,6 +69,26 @@ const ProfileScreen = () => {
     );
   };
 
+  const uploadImage = async () => {
+    try {
+      const response = await fetch(newImageLocalUri);
+
+      const blob = await response.blob();
+
+      const urlParts = newImageLocalUri.split('.');
+      const extension = urlParts[urlParts.length - 1];
+
+      const key = `${user.sub}.${extension}`;
+
+      await Storage.put(key, blob);
+
+      return key;
+    } catch (e) {
+      console.log(e);
+    }
+    return '';
+  };
+
   /* **** API **** */
 
   const client = generateClient();
