@@ -4,12 +4,13 @@
   "bucketName": "nlove9a07e4b855434532bc5ac399b3e72ecd",
   "storageAccess": "authAndGuest",
   "guestAccess": [
+    "CREATE_AND_UPDATE",
     "READ"
   ],
   "authAccess": [
     "CREATE_AND_UPDATE",
-    "READ"
+    "READ",
+    "DELETE"
   ],
-  "triggerFunction": "NONE",
   "groupAccess": {}
 }

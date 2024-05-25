@@ -17,7 +17,8 @@ import {
 } from 'react-native';
 
 import {getCurrentUser} from 'aws-amplify/auth';
-
+import {uploadData} from 'aws-amplify/storage';
+import {S3Image} from 'aws-amplify-react-native';
 import {generateClient} from 'aws-amplify/api';
 import {User} from '../models';
 import {DataStore} from 'aws-amplify/datastore';
@@ -54,41 +55,6 @@ const ProfileScreen = () => {
     toggleLookingForDropdown();
   };
 
-  const pickImage = () => {
-    launchImageLibrary(
-      {mediaType: 'photo'},
-      ({didCancel, errorCode, errorMessage, assets}) => {
-        if (didCancel) {
-          return;
-        } else if (errorCode) {
-          Alert.alert('An error occurred');
-          return;
-        }
-        setNewImageLocalUri(assets[0].uri);
-      },
-    );
-  };
-
-  const uploadImage = async () => {
-    try {
-      const response = await fetch(newImageLocalUri);
-
-      const blob = await response.blob();
-
-      const urlParts = newImageLocalUri.split('.');
-      const extension = urlParts[urlParts.length - 1];
-
-      const key = `${user.sub}.${extension}`;
-
-      await Storage.put(key, blob);
-
-      return key;
-    } catch (e) {
-      console.log(e);
-    }
-    return '';
-  };
-
   /* **** API **** */
 
   const client = generateClient();
@@ -96,8 +62,6 @@ const ProfileScreen = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Load user's profile info
 
   useEffect(() => {
     (async () => {
@@ -134,7 +98,7 @@ const ProfileScreen = () => {
     return name && bio && gender && lookingFor;
   };
 
-  // Update profile information
+  // *** Update profile information ***
 
   const save = async () => {
     if (!isValid) {
@@ -142,14 +106,20 @@ const ProfileScreen = () => {
       return;
     }
     setIsSaving(true);
+    var newImage;
+    if (newImageLocalUri) {
+      newImage = await uploadImage();
+    }
     DataStore.save(
       User.copyOf(user, updated => {
         updated.name = name;
         updated.bio = bio;
         updated.gender = gender;
         updated.lookingFor = lookingFor;
-        updated.images =
-          'https://study.com/cimages/videopreview/oqsdgp8y6y.jpg';
+        if (newImage) {
+          updated.images = newImage;
+          setNewImageLocalUri(null);
+        }
       }),
     )
       .then(updatedUser => {
@@ -166,15 +136,55 @@ const ProfileScreen = () => {
       });
   };
 
+  const pickImage = () => {
+    launchImageLibrary(
+      {mediaType: 'photo'},
+      ({didCancel, errorCode, errorMessage, assets}) => {
+        if (didCancel) {
+          return;
+        } else if (errorCode) {
+          Alert.alert('An error occurred');
+          return;
+        }
+        setNewImageLocalUri(assets[0].uri);
+      },
+    );
+  };
+
+  const uploadImage = async event => {
+    try {
+      const response = await fetch(newImageLocalUri);
+      const blob = await response.blob();
+      const urlParts = newImageLocalUri.split('.');
+      const extension = urlParts[urlParts.length - 1];
+      const key = `userImages/${user.sub}.${extension}`;
+      const result = await uploadData({
+        path: key,
+        data: blob,
+      }).result;
+      if (result) {
+        return key;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    return '';
+  };
+
+  const renderImage = () => {
+    if (newImageLocalUri) {
+      return <Image source={{uri: newImageLocalUri}} style={styles.image} />;
+    }
+    if (user?.image?.startsWith('http')) {
+      return <Image source={{uri: user?.image}} style={styles.image} />;
+    }
+    return <S3Image imgKey={user.image} style={styles.image} />;
+  };
+
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        <Pressable onPress={pickImage}>
-          <Image
-            source={{uri: newImageLocalUri ? newImageLocalUri : user?.images}}
-            style={{width: 100, height: 100, borderRadius: 50}}
-          />
-        </Pressable>
+        <Pressable onPress={pickImage}>{renderImage()}</Pressable>
         <Text>Name:</Text>
         <TextInput
           style={styles.input}
@@ -297,6 +307,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'lightgray',
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
 });
 
