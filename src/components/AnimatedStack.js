@@ -12,8 +12,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import {PanGestureHandler} from 'react-native-gesture-handler';
 
-import Like from '../../../assets/images/like.png';
-import Dislike from '../../../assets/images/dislike.png';
+import Like from '../../assets/images/like.png';
+import Dislike from '../../assets/images/dislike.png';
 
 const ROTATION = 60;
 const SWIPE_DISTANCE_MODIFIER = 0.5;
