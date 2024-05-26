@@ -3,6 +3,7 @@ import {StyleSheet, View, Alert, ActivityIndicator} from 'react-native';
 
 import UserCard from '../components/UserCard';
 import AnimatedStack from '../components/AnimatedStack';
+import Onboarding from '../components/Onboarding';
 
 import {getCurrentUser} from 'aws-amplify/auth';
 import {DataStore} from 'aws-amplify/datastore';
@@ -39,11 +40,6 @@ const HomeScreen = ({isUserLoading}) => {
       return;
     }
     const fetchMatches = async () => {
-      const fetchMatch = async matchId => {
-        const dbUsers = await DataStore.query(User, u => u.sub.eq(matchId));
-        return dbUsers[0];
-      };
-
       const dbMatches = await DataStore.query(Match, m =>
         m.and(m => [
           m.isMatch.eq(true),
@@ -126,6 +122,8 @@ const HomeScreen = ({isUserLoading}) => {
     <View style={styles.pageContainer}>
       {isLoading ? (
         <ActivityIndicator />
+      ) : !me ? (
+        <Onboarding />
       ) : (
         <>
           <AnimatedStack
@@ -150,6 +148,7 @@ const HomeScreen = ({isUserLoading}) => {
       )}
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
