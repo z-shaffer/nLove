@@ -12,17 +12,13 @@ import {
   TouchableOpacity,
   Alert,
   Image,
-  ScrollView,
-  Platform,
+  ActivityIndicator,
 } from 'react-native';
-
 import {getCurrentUser} from 'aws-amplify/auth';
 import {uploadData} from 'aws-amplify/storage';
-import {S3Image} from 'aws-amplify-react-native';
 import {generateClient} from 'aws-amplify/api';
 import {User} from '../models';
 import {DataStore} from 'aws-amplify/datastore';
-
 import {launchImageLibrary} from 'react-native-image-picker';
 
 const ProfileScreen = () => {
@@ -34,8 +30,11 @@ const ProfileScreen = () => {
   const [isLookingForDropdownVisible, setIsLookingForDropdownVisible] =
     useState(false);
   const [newImageLocalUri, setNewImageLocalUri] = useState(null);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const genders = ['MALE', 'FEMALE', 'OTHER'];
+  const awsUrl =
+    'https://nlove9a07e4b855434532bc5ac399b3e72ecdc72bb-dev.s3.amazonaws.com/';
 
   const toggleGenderDropdown = () => {
     setIsGenderDropdownVisible(!isGenderDropdownVisible);
@@ -117,7 +116,7 @@ const ProfileScreen = () => {
         updated.gender = gender;
         updated.lookingFor = lookingFor;
         if (newImage) {
-          updated.images = newImage;
+          updated.images = awsUrl + newImage;
           setNewImageLocalUri(null);
         }
       }),
@@ -161,6 +160,9 @@ const ProfileScreen = () => {
       const result = await uploadData({
         path: key,
         data: blob,
+        options: {
+          contentType: 'image/' + extension,
+        },
       }).result;
       if (result) {
         return key;
@@ -174,11 +176,29 @@ const ProfileScreen = () => {
   const renderImage = () => {
     if (newImageLocalUri) {
       return <Image source={{uri: newImageLocalUri}} style={styles.image} />;
+    } else if (imageLoading && user?.images) {
+      return (
+        <>
+          <Text> Loading. . .</Text>
+          <Image
+            source={{uri: user?.images}}
+            style={styles.image}
+            onLoadEnd={() => setImageLoading(false)}
+          />
+        </>
+      );
+    } else if (user?.images) {
+      return <Image source={{uri: user?.images}} style={styles.image} />;
+    } else {
+      return (
+        <Image
+          source={{
+            uri: 'https://img.freepik.com/free-photo/white-blank-background-texture-design-element_53876-132773.jpg',
+          }}
+          style={styles.image}
+        />
+      );
     }
-    if (user?.image?.startsWith('http')) {
-      return <Image source={{uri: user?.image}} style={styles.image} />;
-    }
-    return <S3Image imgKey={user.image} style={styles.image} />;
   };
 
   return (
