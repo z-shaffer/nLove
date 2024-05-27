@@ -124,22 +124,38 @@ const MatchesScreen = () => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        {isLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <>
-            <View style={styles.match}>
-              {matches.map(match => {
-                return (
-                  <View style={styles.user} key={match.id}>
-                    <Image source={{uri: match.images}} style={styles.image} />
-                  </View>
-                );
-              })}
-            </View>
-            <Messages />
-          </>
-        )}
+        {(() => {
+          if (isLoading) {
+            return <ActivityIndicator />;
+          } else if (!matches || matches.length === 0) {
+            return (
+              <>
+                <Text style={{color: 'white', fontSize: 72, paddingTop: '10%'}}>
+                  You have no matches.
+                </Text>
+                <Text style={{color: 'white', fontSize: 72, paddingTop: '15%'}}>
+                  Start swiping!
+                </Text>
+              </>
+            );
+          } else {
+            return (
+              <>
+                <View style={styles.match}>
+                  {matches.map(match => (
+                    <View style={styles.user} key={match.id}>
+                      <Image
+                        source={{uri: match.images}}
+                        style={styles.image}
+                      />
+                    </View>
+                  ))}
+                </View>
+                <Messages />
+              </>
+            );
+          }
+        })()}
       </View>
     </SafeAreaView>
   );
