@@ -48,7 +48,6 @@ const App = () => {
         setIsLoading(false);
       }
     });
-    //DataStore.start();
     return () => listener();
   }, []);
 

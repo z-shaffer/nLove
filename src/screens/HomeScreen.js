@@ -23,9 +23,12 @@ const HomeScreen = ({isUserLoading}) => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       setIsLoading(true);
-      const user = await getCurrentUser();
-      const dbUsers = await DataStore.query(User, u => u.sub.eq(user.userId));
+      const identityUser = await getCurrentUser();
+      const dbUsers = await DataStore.query(User, u =>
+        u.sub.eq(identityUser.userId),
+      );
       if (!dbUsers || !dbUsers.length) {
+        setIsLoading(false);
         return;
       }
       setMe(dbUsers[0]);
@@ -120,35 +123,38 @@ const HomeScreen = ({isUserLoading}) => {
 
   return (
     <View style={styles.pageContainer}>
-      {isLoading ? (
-        <ActivityIndicator />
-      ) : !me ? (
-        <Onboarding />
-      ) : (
-        <>
-          <AnimatedStack
-            data={users}
-            renderItem={({item}) => <UserCard user={item} />}
-            setCurrentUser={setCurrentUser}
-            onSwipeLeft={onSwipeLeft}
-            onSwipeRight={onSwipeRight}
-          />
-          <View style={styles.icons}>
-            <View style={styles.button}>
-              <Fontisto name="frowning" size={40} color="#FF6B6B" />
-            </View>
-            <View style={styles.button}>
-              <Fontisto name="undo" size={40} color="#FFD166" />
-            </View>
-            <View style={styles.button}>
-              <Fontisto name="heart-eyes" size={40} color="#00b894" />
-            </View>
-          </View>
-        </>
-      )}
+      {(() => {
+        if (isLoading) {
+          return <ActivityIndicator />;
+        } else if (!me) {
+          return <Onboarding setMe={setMe} />;
+        } else {
+          return (
+            <>
+              <AnimatedStack
+                data={users}
+                renderItem={({item}) => <UserCard user={item} />}
+                setCurrentUser={setCurrentUser}
+                onSwipeLeft={onSwipeLeft}
+                onSwipeRight={onSwipeRight}
+              />
+              <View style={styles.icons}>
+                <View style={styles.button}>
+                  <Fontisto name="frowning" size={40} color="#FF6B6B" />
+                </View>
+                <View style={styles.button}>
+                  <Fontisto name="undo" size={40} color="#FFD166" />
+                </View>
+                <View style={styles.button}>
+                  <Fontisto name="heart-eyes" size={40} color="#00b894" />
+                </View>
+              </View>
+            </>
+          );
+        }
+      })()}
     </View>
   );
-  
 };
 
 const styles = StyleSheet.create({

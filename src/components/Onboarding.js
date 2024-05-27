@@ -12,16 +12,14 @@ import {
   TouchableOpacity,
   Alert,
   Image,
-  ActivityIndicator,
 } from 'react-native';
-import {getCurrentUser} from 'aws-amplify/auth';
 import {uploadData} from 'aws-amplify/storage';
-import {generateClient} from 'aws-amplify/api';
 import {User} from '../models';
 import {DataStore} from 'aws-amplify/datastore';
 import {launchImageLibrary} from 'react-native-image-picker';
+import {getCurrentUser} from 'aws-amplify/auth';
 
-const Onboarding = () => {
+const Onboarding = ({setMe}) => {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [gender, setGender] = useState('MALE');
@@ -30,9 +28,10 @@ const Onboarding = () => {
   const [isLookingForDropdownVisible, setIsLookingForDropdownVisible] =
     useState(false);
   const [newImageLocalUri, setNewImageLocalUri] = useState(null);
-  const [imageLoading, setImageLoading] = useState(true);
 
   const genders = ['MALE', 'FEMALE', 'OTHER'];
+  const awsUrl =
+    'https://nlove9a07e4b855434532bc5ac399b3e72ecdc72bb-dev.s3.amazonaws.com/';
 
   const toggleGenderDropdown = () => {
     setIsGenderDropdownVisible(!isGenderDropdownVisible);
@@ -53,43 +52,18 @@ const Onboarding = () => {
   };
 
   /* **** API **** */
-
-  const client = generateClient();
-
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [identityUser, setIdentityUser] = useState(null);
+
   useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      getCurrentUser().then(userInfo => {
-        DataStore.query(User, u => u.sub.eq(userInfo.userId)).then(
-          async dbUsers => {
-            if (!dbUsers?.length) {
-              const newUser = new User({
-                sub: userInfo.userId,
-                name: '',
-                bio: '',
-                gender: 'MALE',
-                lookingFor: 'MALE',
-                images: '',
-              });
-              await DataStore.save(newUser);
-              dbUsers[0] = newUser;
-            }
-            const currentUser = dbUsers[0];
-            setUser(currentUser);
-            setName(currentUser.name);
-            setBio(currentUser.bio);
-            setGender(currentUser.gender);
-            setLookingFor(currentUser.lookingFor);
-          },
-        );
-      });
-      setIsLoading(false);
-    })();
-  }, []);
+    const fetchIdentityUser = async () => {
+      setIdentityUser(await getCurrentUser());
+    };
+    fetchIdentityUser();
+  });
 
   const isValid = () => {
     return name && bio && gender && lookingFor;
@@ -99,39 +73,46 @@ const Onboarding = () => {
 
   const save = async () => {
     if (!isValid) {
-      Alert.alert('Invalid input');
+      Alert.alert('You must have a complete profile to use nLove.');
       return;
     }
     setIsSaving(true);
     var newImage;
     if (newImageLocalUri) {
       newImage = await uploadImage();
+      console.log('testing');
+    } else {
+      Alert.alert('You must upload a photo to use nLove.');
+      setIsSaving(false);
+      return;
     }
     DataStore.save(
-      User.copyOf(user, updated => {
-        updated.name = name;
-        updated.bio = bio;
-        updated.gender = gender;
-        updated.lookingFor = lookingFor;
-        if (newImage) {
-          const awsUrl =
-            'https://nlove9a07e4b855434532bc5ac399b3e72ecdc72bb-dev.s3.amazonaws.com/';
-          updated.images = awsUrl + newImage;
-          setNewImageLocalUri(null);
-        }
+      new User({
+        name: name,
+        bio: bio,
+        gender: gender,
+        lookingFor: lookingFor,
+        images: awsUrl + newImage,
+        sub: identityUser.userId,
       }),
     )
-      .then(updatedUser => {
-        if (updatedUser) {
-          setUser(updatedUser);
-          Alert.alert('Profile updated!');
+      .then(newUser => {
+        if (newUser) {
+          setNewImageLocalUri(null);
+          Alert.alert('Profile created. Welcome to nLove!');
+          setIsSaving(false);
+          setMe(newUser);
+          return;
+        } else {
+          Alert.alert('An error occurred');
+          setIsSaving(false);
+          return;
         }
       })
       .catch(e => {
         Alert.alert('Error updating profile:', e);
-      })
-      .finally(() => {
         setIsSaving(false);
+        return;
       });
   };
 
@@ -156,7 +137,7 @@ const Onboarding = () => {
       const blob = await response.blob();
       const urlParts = newImageLocalUri.split('.');
       const extension = urlParts[urlParts.length - 1];
-      const key = `userImages/${user.sub}.${extension}`;
+      const key = `userImages/${identityUser.userId}.${extension}`;
       const result = await uploadData({
         path: key,
         data: blob,
@@ -165,6 +146,7 @@ const Onboarding = () => {
         },
       }).result;
       if (result) {
+        console.log('returning');
         return key;
       }
     } catch (e) {
@@ -176,24 +158,11 @@ const Onboarding = () => {
   const renderImage = () => {
     if (newImageLocalUri) {
       return <Image source={{uri: newImageLocalUri}} style={styles.image} />;
-    } else if (imageLoading && user?.images) {
-      return (
-        <>
-          <Text> Loading. . .</Text>
-          <Image
-            source={{uri: user?.images}}
-            style={styles.image}
-            onLoadEnd={() => setImageLoading(false)}
-          />
-        </>
-      );
-    } else if (user?.images) {
-      return <Image source={{uri: user?.images}} style={styles.image} />;
     } else {
       return (
         <Image
           source={{
-            uri: 'https://img.freepik.com/free-photo/white-blank-background-texture-design-element_53876-132773.jpg',
+            uri: 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg',
           }}
           style={styles.image}
         />
@@ -204,6 +173,20 @@ const Onboarding = () => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
+        <Text
+          style={{
+            color: 'white',
+            left: '33%',
+          }}>
+          Welcome to nLove!{' '}
+        </Text>
+        <Text
+          style={{
+            color: 'white',
+            left: '35%',
+          }}>
+          Let's get started.
+        </Text>
         <Pressable onPress={pickImage}>{renderImage()}</Pressable>
         <Text>Name:</Text>
         <TextInput
@@ -274,7 +257,7 @@ const Onboarding = () => {
           </View>
         </Modal>
         <Pressable onPress={save} style={styles.button}>
-          {isSaving ? <Text>Saving...</Text> : <Text>Save</Text>}
+          {isSaving ? <Text>Creating...</Text> : <Text>Save</Text>}
         </Pressable>
       </View>
     </SafeAreaView>

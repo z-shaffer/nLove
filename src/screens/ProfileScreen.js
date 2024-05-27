@@ -68,18 +68,6 @@ const ProfileScreen = () => {
       getCurrentUser().then(userInfo => {
         DataStore.query(User, u => u.sub.eq(userInfo.userId)).then(
           async dbUsers => {
-            if (!dbUsers?.length) {
-              const newUser = new User({
-                sub: userInfo.userId,
-                name: '',
-                bio: '',
-                gender: 'MALE',
-                lookingFor: 'MALE',
-                images: '',
-              });
-              await DataStore.save(newUser);
-              dbUsers[0] = newUser;
-            }
             const currentUser = dbUsers[0];
             setUser(currentUser);
             setName(currentUser.name);
