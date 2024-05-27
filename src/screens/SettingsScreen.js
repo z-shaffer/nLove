@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,22 @@ import {
 } from 'react-native';
 
 import {signOut} from 'aws-amplify/auth';
+import {DataStore} from 'aws-amplify/datastore';
 
 const SettingsScreen = () => {
+  const [loggingOut, setLoggingOut] = useState(false);
+  const logOut = async () => {
+    setLoggingOut(true);
+    await DataStore.clear();
+    signOut();
+    setLoggingOut(false);
+  };
+
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        <Pressable onPress={() => signOut()}>
-          <Text>Log Out</Text>
+        <Pressable onPress={logOut}>
+          {loggingOut ? <Text>Logging Out...</Text> : <Text>Log Out</Text>}
         </Pressable>
       </View>
     </SafeAreaView>
